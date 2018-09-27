@@ -6,17 +6,17 @@ We hope our contribution will start a process of open source development and con
 
 # Generator structure 
 To determine the traffic pattern of every TG in the network we use the following terminology: topology, locality, application type, application occurrence, role and TG (that is a role occurrence).
--	Topology: The topology of the network is described hierarchically as a tree but may represent levels of proximity even on non-tree like topologies. The tree leaves are hosts, connected in racks, aggregated in clusters and finally to datacenters. 
+- Topology: The topology of the network is described hierarchically as a tree but may represent levels of proximity even on non-tree like topologies. The tree leaves are hosts, connected in racks, aggregated in clusters and finally to datacenters. 
 
-Figure 1 Locality Hierarchy:  host, rack, Cluster, Data Center
+<img src="/README.pngs/fig1.png" alt="Figure 1 Locality Hierarchy: host, rack, Cluster, Data Center"/>
 
--	Application Type: This object represents a class of an application. For example: Web Cache, Map Reduce or Database. Its definition consists of a list of TG roles that represent the traffic types injected by the processes or threads of this application type. 
+- Application Type: This object represents a class of an application. For example: Web Cache, Map Reduce or Database. Its definition consists of a list of TG roles that represent the traffic types injected by the processes or threads of this application type. 
   - Locality: A role definition includes locality distribution that determines the destinations that a TG of this role transmits to: intra-host, intra-rack, intra-cluster, intra- and inter-data center.
   - Characteristics: For each locality the role has a set of user-provided distribution functions that determine the traffic injection characteristics that TGs of this role produce. These characteristics are flow size, flow duration, messages size, inter arrival of next flow.  
--	Application Occurrence: Is an instance of an application type and is defined by a list of TGs.
--	TG: A traffic generator which has a unique address, a location identifier (its host, rack, cluster, datacenter), and a role defined by its application type’s roles.
+- Application Occurrence: Is an instance of an application type and is defined by a list of TGs.
+- TG: A traffic generator which has a unique address, a location identifier (its host, rack, cluster, datacenter), and a role defined by its application type’s roles.
 
-Figure 2 The DCTG Objects their Aggregation (in blue) and Association (in orange and green).
+<img src="/README.pngs/fig2.png" alt="Figure 2 The DCTG Objects their Aggregation (in blue) and Association (in orange and green)."/>
 
 # Usage
 OMNeT++ simulations model should instantiate the DCTG Manager singleton and a set of TG objects (or a subclass of the one provided by the DCTG library). The TGs should invoke the manager getNextFlow() method and obtain back the full definition of a new flow which follows the exact characteristics of the role that TG carries within the application occurrence it belongs to. 
