@@ -21,6 +21,11 @@ To determine the traffic pattern of every TG in the network we use the following
 # Usage
 OMNeT++ simulations model should instantiate the DCTG Manager singleton and a set of TG objects (or a subclass of the one provided by the DCTG library). The TGs should invoke the manager getNextFlow() method and obtain back the full definition of a new flow which follows the exact characteristics of the role that TG carries within the application occurrence it belongs to. 
 
+# Installation
+- You must have an omnetpp 4.6 or later installed and its bin dir in your PATH
+- In the root directory run: make makefiles; make; make MODE=release
+- You should find the resulting lib in the src directory
+
 # References
 [1] A. Roy, et al., “Inside the Social Network’s (Datacenter) Network,” in Proceedings of the 2015 SIGCOMM’15, pp. 123–137.
 
