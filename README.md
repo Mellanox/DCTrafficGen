@@ -24,7 +24,7 @@ OMNeT++ simulations model should instantiate the DCTG Manager singleton and a se
 # Installation
 - You must have an omnetpp 4.6 installed and its bin dir in your PATH
 - In the root directory run: make makefiles; make; make MODE=release
-- You should find the resulting lib in the src directory
+- You should find the resulting lib in the out/gcc-release or out/gcc-debug src directory
 
 # References
 [1] A. Roy, et al., “Inside the Social Network’s (Datacenter) Network,” in Proceedings of the 2015 SIGCOMM’15, pp. 123–137.

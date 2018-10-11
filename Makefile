@@ -1,18 +1,29 @@
+# By default we build debug
 MODE ?= debug
-GCC_INSTALL ?= /auto/sw_tools/OpenSource/gcc/INSTALLS/gcc-4.9.3/linux_x86_64
-export PATH:=${GCC_INSTALL}/bin:${PATH}
+
+# If you provide an alternate GCC_INSTALL dir we take care of the PATH and LIBPATH 
+# e.g. GCC_INSTALL ?= /auto/sw_tools/OpenSource/gcc/INSTALLS/gcc-4.9.3/linux_x86_64
+
+# NOTICE: 
+#   omnetpp-4.6 will build same lib name in release/debug. 
+#   omnetpp-5* will suffic debug lib with _dbg
+
+ifneq ($(GCC_INSTALL),) 
+	export PATH:=${GCC_INSTALL}/bin:${PATH}
+	GCC_LIB=-L${GCC_INSTALL}/lib64
+endif
 
 ifeq (${MODE},debug)
 DEF=-DDEBUG
-LIBSUFF=_debug
+#LIBSUFF=debug
 else
 DEF=
-LIBSUFF=
+#LIBSUFF=release
 endif
 
 CXXFLAGS="-Wall --std=c++11 -I /usr/include/libxml2/ ${DEF}"
 all: checkmakefiles
-	cd src && $(MAKE) CXXFLAGS=$(CXXFLAGS) CONFIGNAME= PROJECTRELATIVE_PATH=
+	cd src && $(MAKE) MODE=$(MODE) CXXFLAGS=$(CXXFLAGS) 
 
 clean: checkmakefiles
 	cd src && $(MAKE) clean
@@ -23,7 +34,7 @@ cleanall: checkmakefiles
 	rm -f src/Makefile
 
 makefiles:
-	cd src && opp_makemake -P ${PWD} -M ${MODE} -f --deep --make-so -L${GCC_INSTALL}/lib64 -O lib -o DCTG_$$\(MODE\)
+	cd src && opp_makemake -P ${PWD} -f -X example --deep --make-so $(GCC_LIB) -O out -o DCTG
 
 checkmakefiles:
 	@if [ ! -f src/Makefile ]; then \
