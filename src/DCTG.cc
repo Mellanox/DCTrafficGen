@@ -96,7 +96,7 @@ double  DCTGDist::getRandomValue(cSimpleModule *caller) {
     return randValue;
   } else {
     //random bin
-    double prob = uniform(0.0, 1.0);
+    double prob = UNIFORM(0.0, 1.0);
     size_t mid, high, low;
     high = cdfTable.size() - 1;
     low = 0;
@@ -111,7 +111,7 @@ double  DCTGDist::getRandomValue(cSimpleModule *caller) {
     //random value inside the bin
     double highValue = cdfTable[high].first;
     double lowValue  = (high==0) ? 0 : cdfTable[high-1].first;
-    double randValue = uniform(lowValue,highValue);
+    double randValue = UNIFORM(lowValue,highValue);
     return randValue;
   }
 }

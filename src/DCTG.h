@@ -45,6 +45,14 @@
 #include <libxml/tree.h>
 using namespace std;
 
+#if OMNETPP_VERSION > 0x0500
+using namespace omnetpp;
+#define opp_error cRuntimeError
+#define UNIFORM getSimulation()->getModule(0)->uniform 
+#else
+#define UNIFORM uniform 
+#endif
+
 enum Locality {
   INTRA_HOST = 0,
   INTRA_RACK,
