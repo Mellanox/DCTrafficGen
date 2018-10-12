@@ -40,17 +40,19 @@
 #include <omnetpp.h>
 #include "DCTG.h"
 #include <string>
+
 /**
- * DCTrafficGenerate Packets
+ * DCTrafficGen generates packets according to instance role in a job
  */
 class DCTrafficGen : public cSimpleModule
 {
   // parameters:
-  double startTime_s; // the time to start generating packets
-  double stopTime_s;  // the time to stop
+  unsigned int linkBW_Bps; // output link bandwidth in B/s
+  double startTime_s;      // the time to start generating packets
+  double stopTime_s;       // the time to stop
   double statCollPeriod_s; // statistics collection period
-  double startColl_s; // start of outBwMBps collection
-  double endColl_s; // end of outBwMBps collection
+  double startColl_s;      // start of outBwMBps collection
+  double endColl_s;        // end of outBwMBps collection
   unsigned int numPending; // pending msgs - 1 means sched Q will drain
   string dstAddr;
 
@@ -88,15 +90,12 @@ class DCTrafficGen : public cSimpleModule
   cStdDev outBwMBps; // collected during [statColl_s, endColl_s]
 
  protected:
+  // must be provided by sub-class since convering address to destination is undefined
   virtual cMessage * createMsg(unsigned int pktSize_B,
-                               unsigned int msgPackets,string dstAddr) 
-  { 
-    opp_error("createMsg... please define me"); return NULL;
-  };
+                               unsigned int msgPackets,string dstAddr) = 0;
+  // must be provided by sub-class since addressing is usage specific
+  virtual string getMyAddr() = 0;
 
-  virtual string getMyAddr()  { 
-    opp_error("getMyAddr()... please define me"); return "";
-  };
   virtual void emit_dstAddr(string dstAddr) {};
   virtual void initialize();
   virtual void handleMessage(cMessage *msg);

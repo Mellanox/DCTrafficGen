@@ -96,8 +96,8 @@ class DCTGRole {
   DCTGRole(string name) {roleName=name; localityDCTGDist=NULL;};
   DCTGRole() {localityDCTGDist=NULL;};
   int getRandFlow(cSimpleModule *caller,  Locality &flowLocality, 
-						unsigned int &msgSize, double &duration, 
-						unsigned int &flowSize, double &interArrival);
+                  unsigned int &msgSize, double &duration, 
+                  unsigned int &flowSize, double &interArrival);
 };
 
 class DCTGGen{
@@ -147,9 +147,11 @@ class DCTGAppInst
   inline bool addressExists(string address);
   inline DCTGGen* getGen(string address);
   inline void addGen(DCTGGen* gen);
-
 };
 
+/**
+ * DCTGMgr: the manager of all known roles and jobs
+ */
 // singleton
 class DCTGMgr
 {
@@ -182,17 +184,17 @@ class DCTGMgr
   inline string getXmlNodeContent(xmlNode * node);
 
   DCTGDist * createDCTGDist(xmlNode * node);
+  int  strToInteger(string intStr,string appInstName);
 
  public:
-  int  strToInteger(string intStr,string appInstName);
 
   static DCTGMgr * get(); //for the singletone
   ~DCTGMgr();
 
   int getRandFlow(string sourceAddress, cSimpleModule *caller,  
-						string &destAddr,  unsigned int &msgSize,
+                  string &destAddr,  unsigned int &msgSize,
                   unsigned int &flowSize, double &flowDuration, 
-						double &interArrival);
+                  double &interArrival);
   int reg(string address,string appInstXml);
 };
 

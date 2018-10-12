@@ -40,23 +40,27 @@ moduleinterface IDCTrafficGen
 {
     parameters:
       // the time to start generating work
-      double startTime;
+      double startTime @unit(s) = default(0s);
       // the time to stop generating work 
-      double stopTime;
+      double stopTime @unit(s) = default(10000s);
    
- //  link BW
-      int linkBW_MBps;
+		// link BW
+      int linkBW_Bps @unit(B) = default(12.5GB); // for 100Gbps
       // Message size to generate
-      volatile int pktSize;
-// statistics collection period
-      double statCollPeriod;
-      // start statistics collection
-      double startColl;
-      // end statistics collection
-      double endColl;
-//app configuration to DCTrafficGen
+      volatile int pktSize @unit(B) = default(1500);
+
+      //app configuration to DCTrafficGen
       string appXmlConfig;
-      //statistics
+
+      // statistics
+
+      // statistics collection period
+      double statCollPeriod @unit(s) = default(1ms);
+      // start statistics collection
+      double startColl @unit(s) = default(0s);
+      // end statistics collection
+      double endColl @unit(s) = default(10000s);
+		// signal based
       @statistic[genBWVecMBps](record=max,min,mean,vector); 
       @statistic[numMsgs](record=mean,vector); 
       @statistic[flowDuration](record=mean,vector); 

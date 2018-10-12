@@ -42,8 +42,8 @@ void DCTrafficGen::initialize()
   startTime_s = par("startTime"); // the time to start generating packets
   stopTime_s = par("stopTime");  // the time to stop
   appXmlConfig = par("appXmlConfig").stringValue();
-  int linkBW_MBps = par("linkBW_MBps");
-  dlyPerByte_s = 1.0/(linkBW_MBps*1e6);
+  linkBW_Bps = par("linkBW_Bps");
+  dlyPerByte_s = 1.0/(linkBW_Bps);
   statCollPeriod_s = par("statCollPeriod");
   startColl_s = par("startColl");
   endColl_s = par("endColl");
@@ -119,8 +119,7 @@ void DCTrafficGen::handleMessage(cMessage *msg)
     flowDuration_s    = max(flowDuration_s,dlyPerByte_s * flowSize_B);
     interArival_s     = max(interArival_s,flowDuration_s);
     minNextFlowTime   = simTime() + interArival_s;
-    int linkBW_MBps   = par("linkBW_MBps");
-    flowRate =(1.0*flowSize_B/flowDuration_s)/(linkBW_MBps*1e6);
+    flowRate =(1.0*flowSize_B/flowDuration_s)/(linkBW_Bps);
     numToGen = numMsgsInFlow>1 ? 2 : 1;
     double sendMsgTime = dlyPerByte_s * msgSize_B;
     avgTimeBetweenMsgs = numMsgsInFlow==1 ? 0 : 
