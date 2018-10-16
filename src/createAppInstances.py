@@ -247,10 +247,10 @@ def main(argv=None):
              raise Usage(msg)
         for opt, arg in opts:
             if opt in ("-h", "--help"):
-                print 'USAGE\ncreateAppInstances.py -a|--address-pattern <pattern with %d,%c,%r,%h %g for dc,cluster,rack,host,gen numbers> -d|--data-centers <num of dc>' \
-                    ' -c|--clusters <num of clusters per dc> -r|--racks <num of racks per cluster> -m|--hosts <num of hosts per rack> -a|--apps <num of apps per type separated by,>' \
-                      '-t|--app-types <app types separated by, (sould be the same number as --apps) -s|--apps-size <min app size>,<max app size> ' \
-                      '-i|--ini-pattern <pattern to generator path in the ini file> -o|--out-path <xml and ini output path>'
+                print 'USAGE\ncreateAppInstances.py \n   -p|--address-pattern <pattern with %d,%c,%r,%h %g for dc,cluster,rack,host,gen numbers>\n   -d|--data-centers <num of dc>' \
+                    '\n   -c|--clusters <num of clusters per dc>\n   -r|--racks <num of racks per cluster>\n   -m|--hosts <num of hosts per rack>\n   -a|--apps <num of apps per type separated by,>' \
+                      '\n   -t|--app-types <app types separated by, (sould be the same number as --apps) \n   -s|--apps-size <min app size>,<max app size> ' \
+                      '\n   -i|--ini-pattern <pattern to generator path in the ini file>\n   -o|--out-path <xml and ini output path>'
                 print '\nDESCRIPTION: TBD\n' #TODO:
                 sys.exit()
             elif opt in ("-p", "--address-pattern"):
