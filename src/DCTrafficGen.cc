@@ -36,6 +36,8 @@
 
 #include "DCTrafficGen.h"
 
+Define_Module(DCTrafficGen);
+
 void DCTrafficGen::initialize()
 {
   //params
@@ -47,6 +49,7 @@ void DCTrafficGen::initialize()
   statCollPeriod_s = par("statCollPeriod");
   startColl_s = par("startColl");
   endColl_s = par("endColl");
+  numPostedMessages = par("numPostedMessages");
 
   //start msgs
   p_flowMsg = new cMessage("DCTrafficGen");
@@ -87,16 +90,20 @@ void DCTrafficGen::handleMessage(cMessage *msg)
     if ((t>= startTime_s) && (t <= stopTime_s)) {
       double bw = 1e-6*bytesSentStat/statCollPeriod_s;
       emit(egressBWSignal, 1.0*bw);
-      if ((t >= startColl_s) && (t < endColl_s)) 
+      if ((t >= startColl_s) && (t < endColl_s))
         outBwMBps.collect(bw);
       bytesSentStat = 0;
       scheduleAt(simTime() + statCollPeriod_s, p_statMsg);
     }
     return;
   }
-  
-  // must be flow msg or done msg here
-  unsigned int numToGen = 1;
+ 
+  // must be flow msg or done msg here (not stat)
+ 
+  // we will possibly post multiple messages for the first
+  // messages in the flow. Then we generate just 1 at a time
+  unsigned int numMsgsToGen;
+
   if (msg == p_flowMsg) {
     //start new flow
     emit(numMsgsSignal,numMsgsInFlow);
@@ -106,28 +113,28 @@ void DCTrafficGen::handleMessage(cMessage *msg)
     emit(flowRateSignal,flowRate);
     emit_dstAddr(dstAddr);
     trafficMgr->getRandFlow(address,check_and_cast<cSimpleModule*>(this),
-									 dstAddr,msgSize_B,flowSize_B,flowDuration_s,
-									 interArival_s);
+                            dstAddr,msgSize_B,flowSize_B,flowDuration_s,
+                            interArival_s);
     if (numMsgsInFlow!=0) {
-      cout << "-E- " << getFullPath() << " new flow about to start and " 
-			  << numMsgsInFlow << " msg remain in last flow." << endl;
+      EV << "-E- " << getFullPath() << " new flow about to start and "
+         << numMsgsInFlow << " msg remain in last flow." << endl;
       error("-E- new flow about to start and %d msg remain in last flow.",
-				numMsgsInFlow);
+            numMsgsInFlow);
     }
-    numMsgsInFlow = round(1.0*flowSize_B/msgSize_B + 0.5);
-    flowSize_B        = max(numMsgsInFlow*msgSize_B,msgSize_B);
-    flowDuration_s    = max(flowDuration_s,dlyPerByte_s * flowSize_B);
-    interArival_s     = max(interArival_s,flowDuration_s);
-    minNextFlowTime   = simTime() + interArival_s;
-    flowRate =(1.0*flowSize_B/flowDuration_s)/(linkBW_Bps);
-    numToGen = numMsgsInFlow>1 ? 2 : 1;
+    numMsgsInFlow      = (flowSize_B+msgSize_B-1)/msgSize_B;
+    flowSize_B         = max(numMsgsInFlow*msgSize_B,msgSize_B);
+    flowDuration_s     = max(flowDuration_s,dlyPerByte_s * flowSize_B);
+    interArival_s      = max(interArival_s,flowDuration_s);
+    minNextFlowTime    = simTime() + interArival_s;
+    flowRate           =(1.0*flowSize_B/flowDuration_s)/(linkBW_Bps);
+    numMsgsToGen       = numPostedMessages < numMsgsInFlow ? numPostedMessages : numMsgsInFlow;
     double sendMsgTime = dlyPerByte_s * msgSize_B;
-    avgTimeBetweenMsgs = numMsgsInFlow==1 ? 0 : 
-		1.0*(flowDuration_s - numMsgsInFlow * sendMsgTime)/(numMsgsInFlow-1);
+    avgTimeBetweenMsgs = numMsgsInFlow==1 ? 0 :
+      1.0*(flowDuration_s - numMsgsInFlow * sendMsgTime)/(numMsgsInFlow-1);
     EV << "-I- " << getFullPath() << " start new flow!!! "
       "flow size Bytes: " << flowSize_B << " flow duration sec: "
-		 << flowDuration_s << " mags size Bytes: " << msgSize_B
-		 << " msgs in flow: "  << numMsgsInFlow
+       << flowDuration_s << " mags size Bytes: " << msgSize_B
+       << " msgs in flow: "  << numMsgsInFlow
        << " avgTimeBetweenMsgs: "<< avgTimeBetweenMsgs
        << " flowRate " <<flowRate
        << " minNextFlowTime: "<< minNextFlowTime << endl;
@@ -138,24 +145,25 @@ void DCTrafficGen::handleMessage(cMessage *msg)
     emit(flowRateSignal,flowRate);
     emit_dstAddr(dstAddr);
   } else {
+    // must be done messages do delete it
+    numMsgsToGen = 1;
     delete msg;
   }
 
   if (t <= stopTime_s) {
     if (numMsgsInFlow) {
       // generate msgs - we generate enough msgs to meet the target
-		// pending number
-      for (unsigned i = 0; i < numToGen; i++) {
+      // pending number
+      for (unsigned i = 0; i < numMsgsToGen; i++) {
         // randomize message size in bytes
         unsigned pktSize_B = min(msgSize_B,(unsigned)par("pktSize"));
-        unsigned msgPackets = msgSize_B/pktSize_B;
-        numMsgsInFlow --;
+        unsigned msgPackets = (msgSize_B+pktSize_B-1)/pktSize_B;
+        numMsgsInFlow--;
 
         cMessage * p_msg =createMsg(pktSize_B,msgPackets,dstAddr);
         double timeBetweenMsgs = exponential(avgTimeBetweenMsgs);
-        simtime_t delay = timeBetweenMsgs - (simTime() - lastMsgTime) +
-			 lastNegDelay;
-        if ((delay<0)  || (numToGen==2 && i==0)) {
+        simtime_t delay = dlyPerByte_s*msgSize_B + timeBetweenMsgs - (simTime() - lastMsgTime) + lastNegDelay;
+        if ((delay<0) || ((numMsgsToGen>1) && (i==0))) {
           lastNegDelay = delay;
           delay = 0;
         } else {
@@ -163,12 +171,13 @@ void DCTrafficGen::handleMessage(cMessage *msg)
         }
         sendDelayed(p_msg, delay ,p_outOGate);
         EV << "-I- " << getFullPath() << " sent MSG to sched delayd in "
-			  << delay << "s" " bytes: " << pktSize_B << " pkts: " << msgPackets
+           << delay << "s" " bytes: " << pktSize_B << " pkts: " << msgPackets
            << " num of msgs remain in flow: " << numMsgsInFlow << endl;
         lastMsgTime = simTime() + delay;
         bytesSentStat += pktSize_B*msgPackets;
       }
     } else {
+      // no more msgs in this flow - sched new one
       simtime_t nextFlowTime = max(minNextFlowTime,simTime());
       if (!p_flowMsg->isScheduled())
         scheduleAt(nextFlowTime,p_flowMsg);
@@ -184,8 +193,8 @@ void DCTrafficGen::finish()
     cancelAndDelete(p_flowMsg);
   outBwMBps.record();
   recordScalar("gen-span-to-mean-ratio",
-					(outBwMBps.getMax() - outBwMBps.getMin())/outBwMBps.getMean());
-  recordScalar("gen-stddev-to-mean-ratio", 
-					outBwMBps.getStddev()/outBwMBps.getMean());
+               (outBwMBps.getMax() - outBwMBps.getMin())/outBwMBps.getMean());
+  recordScalar("gen-stddev-to-mean-ratio",
+               outBwMBps.getStddev()/outBwMBps.getMean());
 }
 

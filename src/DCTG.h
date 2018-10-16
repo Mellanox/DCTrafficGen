@@ -48,9 +48,9 @@ using namespace std;
 #if OMNETPP_VERSION > 0x0500
 using namespace omnetpp;
 #define opp_error cRuntimeError
-#define UNIFORM getSimulation()->getModule(0)->uniform 
+#define UNIFORM getSimulation()->getModule(0)->uniform
 #else
-#define UNIFORM uniform 
+#define UNIFORM uniform
 #endif
 
 enum Locality {
@@ -81,8 +81,9 @@ class DCTGDist {
   double average;
   vector <pair<double,double>> cdfTable;
   DCTGDist() {};
-  int setCdfTable(string cdfFilePath);
+  int setCdfTable(string cdfFilePath, double scale);
   void setCallerRandParam(string param);
+  unsigned int getRandomBin(cSimpleModule *caller);
   double  getRandomValue(cSimpleModule *caller);
 };
 
@@ -91,12 +92,12 @@ class DCTGRole {
   string roleName;
   DCTGDist * localityDCTGDist;
   // Locality x DistType matrix - the entry is DCTGDist
-  map <Locality , map<DistType,DCTGDist*> > DCTGDists; 
+  map <Locality , map<DistType,DCTGDist*> > DCTGDists;
 
   DCTGRole(string name) {roleName=name; localityDCTGDist=NULL;};
   DCTGRole() {localityDCTGDist=NULL;};
-  int getRandFlow(cSimpleModule *caller,  Locality &flowLocality, 
-                  unsigned int &msgSize, double &duration, 
+  int getRandFlow(cSimpleModule *caller,  Locality &flowLocality,
+                  unsigned int &msgSize, double &duration,
                   unsigned int &flowSize, double &interArrival);
 };
 
@@ -191,15 +192,11 @@ class DCTGMgr
   static DCTGMgr * get(); //for the singletone
   ~DCTGMgr();
 
-  int getRandFlow(string sourceAddress, cSimpleModule *caller,  
+  int getRandFlow(string sourceAddress, cSimpleModule *caller, 
                   string &destAddr,  unsigned int &msgSize,
-                  unsigned int &flowSize, double &flowDuration, 
+                  unsigned int &flowSize, double &flowDuration,
                   double &interArrival);
   int reg(string address,string appInstXml);
 };
-
-// string converting
-DistType strToDistType(string distTypeStr);
-Locality strToLocality(string localityStr);
 
 #endif

@@ -38,19 +38,24 @@
 
 static bool verbose = false;
 
+// string converting
+static DistType strToDistType(string distTypeStr);
+static Locality strToLocality(string localityStr);
+static string localityToStr(Locality locality);
+
 //DCTGDist
 
 void DCTGDist::setCallerRandParam(string param) {
   callerRandParam = param;
 }
 
-int DCTGDist::setCdfTable(string cdfFilePath) {
+int DCTGDist::setCdfTable(string cdfFilePath, double scale) {
   ifstream distFileStream;
   distFileStream.open(cdfFilePath.c_str());
   if (!distFileStream.is_open())
     opp_error("-E- fail to open distribution file %s\n",cdfFilePath.c_str());
   string line;
-  // all the lines the CDF table in the format: 
+  // all the lines the CDF table in the format:
   // value(double or Locality) cdf(double)
   while(getline(distFileStream, line)) {
     if (line[0]=='#')
@@ -66,7 +71,7 @@ int DCTGDist::setCdfTable(string cdfFilePath) {
     double value = 0;
     bool valueIsLoclity = false;
     try {
-      value= stod(value_str);
+      value= stod(value_str)*scale;
     } catch(invalid_argument) {
       valueIsLoclity = true;
     }
@@ -85,6 +90,24 @@ int DCTGDist::setCdfTable(string cdfFilePath) {
   return 0;
 }
 
+unsigned int DCTGDist::getRandomBin(cSimpleModule *caller) {
+  //random bin
+  double prob = UNIFORM(0.0, 1.0);
+  size_t mid, high, low;
+  high = cdfTable.size() - 1;
+  low = 0;
+  while ((cdfTable[low].second == 0) && (low < high ))
+    low++;
+  while(low < high) {
+    mid = (high + low) / 2;
+    if (prob <= cdfTable[mid].second) {
+      high = mid;
+    } else {
+      low = mid + 1;
+    }
+  }
+  return high;
+}
 
 double  DCTGDist::getRandomValue(cSimpleModule *caller) {
   //    cout << caller->getFullPath()<<endl;
@@ -95,19 +118,7 @@ double  DCTGDist::getRandomValue(cSimpleModule *caller) {
     double randValue =caller->par(callerRandParam.c_str());
     return randValue;
   } else {
-    //random bin
-    double prob = UNIFORM(0.0, 1.0);
-    size_t mid, high, low;
-    high = cdfTable.size() - 1;
-    low = 0;
-    while(low < high) {
-      mid = (high + low) / 2;
-      if (prob <= cdfTable[mid].second) {
-        high = mid;
-      } else {
-        low = mid + 1;
-      }
-    }
+    unsigned int high = getRandomBin(caller);
     //random value inside the bin
     double highValue = cdfTable[high].first;
     double lowValue  = (high==0) ? 0 : cdfTable[high-1].first;
@@ -121,10 +132,26 @@ double  DCTGDist::getRandomValue(cSimpleModule *caller) {
 int DCTGRole::getRandFlow(cSimpleModule *caller,  Locality &flowLocality,
                           unsigned int &msgSize, double &duration,
                           unsigned int &flowSize, double &interArrival) {
-  flowLocality = (Locality) localityDCTGDist->getRandomValue(caller);
+  flowLocality = (Locality) localityDCTGDist->getRandomBin(caller);
+
+  if (!DCTGDists[flowLocality][MSG_SIZE])
+    opp_error("-E- app %s locality %s does not define statistics for MSG_SIZE\n",
+              caller->getFullPath().c_str(), localityToStr(flowLocality).c_str()); 
   msgSize = DCTGDists[flowLocality][MSG_SIZE]->getRandomValue(caller);
+
+  if (!DCTGDists[flowLocality][FLOW_DURATION])
+    opp_error("-E- app %s locality %s does not define statistics for FLOW_DURATION\n",
+              caller->getFullPath().c_str(), localityToStr(flowLocality).c_str());
   duration = DCTGDists[flowLocality][FLOW_DURATION]->getRandomValue(caller);
+
+  if (!DCTGDists[flowLocality][FLOW_SIZE])
+    opp_error("-E- app %s locality %s does not define statistics for FLOW_SIZE\n",
+              caller->getFullPath().c_str(), localityToStr(flowLocality).c_str());
   flowSize = DCTGDists[flowLocality][FLOW_SIZE]->getRandomValue(caller);
+
+  if (!DCTGDists[flowLocality][INTER_ARRIVAL])
+    opp_error("-E- app %s locality %s does not define statistics for INTER_ARRIVAL\n",
+              caller->getFullPath().c_str(), localityToStr(flowLocality).c_str());
   interArrival = DCTGDists[flowLocality][INTER_ARRIVAL]->getRandomValue(caller);
   return 0;
 }
@@ -154,19 +181,20 @@ inline DCTGRole* DCTGAppType::getRole(string roleName) {
   return roles[roleNameToRoleIndex[roleName]];
 }
 
-//DCTGAppInst
+// DCTGAppInst
 void DCTGAppInst::delGens() {
   for (unsigned i=0;i<gens.size();i++) {
     delete gens[i];
   }
 }
+
 string DCTGAppInst::getDestAddress(string sourceAddress, Locality locality) {
   string destAddress;
   vector < DCTGGen* > optionalDestGens;
   DCTGGen* sourceGen = getGen(sourceAddress);
   if (verbose) cout << "-I- appInst: " << appInstName
                     << " gen with address: " << sourceAddress
-                    << "and location: (host: " << sourceGen->host
+                    << " and location: (host: " << sourceGen->host
                     << " rack: " << sourceGen->rack
                     << " cluster: " << sourceGen->cluster
                     << " dataCenter: " << sourceGen->dataCenter
@@ -302,18 +330,15 @@ DCTGMgr* DCTGMgr::singleton = 0;
 DCTGMgr* DCTGMgr::get() {
   if (singleton == 0) {
     singleton = new DCTGMgr();
-#ifdef DEBUG
-    verbose = true;
-#endif
   }
   return singleton;
 }
 
-int DCTGMgr::getRandFlow(string sourceAddress, cSimpleModule *caller,  
-                         string &destAddr,  unsigned int &msgSize,  
-                         unsigned int &flowSize, double &flowDuration, 
+int DCTGMgr::getRandFlow(string sourceAddress, cSimpleModule *caller,
+                         string &destAddr,  unsigned int &msgSize,
+                         unsigned int &flowSize, double &flowDuration,
                          double &interArrival) {
-  if (verbose) cout << "-I-  gen of address: " << sourceAddress
+  if (verbose) cout << "-I- gen of address: " << sourceAddress
                     << " ask for random flow " << endl;
   if (genAddrToAppIndex.find(sourceAddress) == genAddrToAppIndex.end()) {
     opp_error("-E- address %s not exists",sourceAddress.c_str());
@@ -325,18 +350,16 @@ int DCTGMgr::getRandFlow(string sourceAddress, cSimpleModule *caller,
   sourceGenRoleType->getRandFlow(caller,flowLocality,msgSize,flowDuration,
                                  flowSize,interArrival);
   destAddr = appInst.getDestAddress(sourceAddress,flowLocality);
-  if (verbose) cout << "-I-  gen of address: "
-                    << sourceAddress << " got random flow: " << endl
+  if (verbose) cout << "-I- gen of address: "
+                    << sourceAddress << " got random flow: ["
                     << " destAddr: " << destAddr
                     << " msgSize: "  << msgSize
                     << " flowSize: "  << flowSize
                     << " flowDuration: " << flowDuration
                     << " interArrival: " << interArrival
-                    << endl;
+                    << "]" << endl;
   return 0;
 }
-
-
 
 xmlDoc * DCTGMgr::openXml(string XmlPath,xmlNode* &rootNode) {
   curXmlPath = XmlPath;
@@ -379,7 +402,7 @@ int DCTGMgr::createXmlAppInst(xmlNode * rootNode) {
     return 1;
   }
   DCTGAppInst curApp(appInstName);
-  for (xmlNode *appInstParamNode = rootNode->children; appInstParamNode; 
+  for (xmlNode *appInstParamNode = rootNode->children; appInstParamNode;
        appInstParamNode = appInstParamNode->next) {
     if (appInstParamNode->type != XML_ELEMENT_NODE)
       continue;
@@ -399,7 +422,7 @@ int DCTGMgr::createXmlAppInst(xmlNode * rootNode) {
                   "the Gens\n",curXmlPath.c_str());
       }
       DCTGGen* curGen = new DCTGGen;
-      for (xmlNode *genParamNode= appInstParamNode->children; genParamNode; 
+      for (xmlNode *genParamNode= appInstParamNode->children; genParamNode;
            genParamNode = genParamNode->next) {
         if (genParamNode->type != XML_ELEMENT_NODE)
           continue;
@@ -460,7 +483,7 @@ DCTGAppType* DCTGMgr::createXmlAppType(xmlNode * rootNode) {
   }
   DCTGAppType* curAppType = new DCTGAppType(appTypeName);
   // loop on roles
-  for (xmlNode *roleNode= rootNode->children; roleNode; 
+  for (xmlNode *roleNode= rootNode->children; roleNode;
        roleNode = roleNode->next) {
     if (roleNode->type != XML_ELEMENT_NODE)
       continue;
@@ -479,7 +502,7 @@ DCTGAppType* DCTGMgr::createXmlAppType(xmlNode * rootNode) {
     }
     DCTGRole* curRole = new DCTGRole(roleName);
     //loop on distribution types
-    for (xmlNode *distTypeNode= roleNode->children; distTypeNode; 
+    for (xmlNode *distTypeNode= roleNode->children; distTypeNode;
          distTypeNode = distTypeNode->next) {
       if (distTypeNode->type != XML_ELEMENT_NODE)
         continue;
@@ -494,7 +517,7 @@ DCTGAppType* DCTGMgr::createXmlAppType(xmlNode * rootNode) {
                     curXmlPath.c_str(),distTypeName.c_str() );
         }
         //loop on localities
-        for (xmlNode *localityNode = distTypeNode->children; localityNode; 
+        for (xmlNode *localityNode = distTypeNode->children; localityNode;
              localityNode = localityNode->next) {
           if (localityNode->type != XML_ELEMENT_NODE)
             continue;
@@ -546,7 +569,7 @@ DCTGAppType* DCTGMgr::createXmlAppType(xmlNode * rootNode) {
   }
   appTypeToIndex[appTypeName] = appTypes.size();
   appTypes.push_back(curAppType);
-  
+
   if (verbose)  {
     for (unsigned int i=0;i<curAppType->roles.size();i++) {
       cout<<"role " << i << " is " <<curAppType->roles[i]->roleName << endl;
@@ -571,14 +594,22 @@ int DCTGMgr::reg(string address,string appInstXml) {
   return 0;
 }
 
+static string getDirName(string path) {
+  size_t lastSlashPos = path.rfind("/");
+  if (lastSlashPos != string::npos) {
+    return(path.substr(0, lastSlashPos));
+  }
+  return(path);
+}
 
 DCTGDist * DCTGMgr::createDCTGDist(xmlNode * node ) {
   bool fromFile = false;
   bool fromPar  = false;
   string path_or_parName;
+  double scale = 1.0;
   // get locality feedType and Dist (could be of from file or parameter
   // randomize in caller ned file)
-  for (xmlNode *randGenPropNode = node->children; randGenPropNode; 
+  for (xmlNode *randGenPropNode = node->children; randGenPropNode;
        randGenPropNode = randGenPropNode->next) {
     if (randGenPropNode->type != XML_ELEMENT_NODE)
       continue;
@@ -589,6 +620,22 @@ DCTGDist * DCTGMgr::createDCTGDist(xmlNode * node ) {
       fromPar = contetnt=="param";
     } else if (localityPropName=="Dist") {
       path_or_parName=contetnt;
+    } else if (localityPropName=="Unit") {
+      if (("KB"==contetnt) || ("KiB"==contetnt)) {
+        scale = 1024.0;
+      } else if (("MB"==contetnt) || ("MiB"==contetnt)) {
+        scale = 1024.0*1024;
+      } else if (("GB"==contetnt) || ("GiB"==contetnt)) {
+        scale = 1024.0*1024*1024;
+      } else if (("ms"==contetnt) || ("msec"==contetnt)) {
+        scale = 0.001;
+      } else if (("us"==contetnt) || ("usec"==contetnt)) {
+        scale = 0.000001;
+      } else {
+        opp_error("-E- %s invalid xml format - unknown Unit type %s "
+                  "(should be KiB/MiB/GiB/msec/usec)\n",
+                  curXmlPath.c_str() ,contetnt.c_str());
+      }
     } else {
       opp_error("-E- %s  invalid xml format - Locality son  should be "
                 "FeedType or Dist not %s\n",
@@ -601,16 +648,22 @@ DCTGDist * DCTGMgr::createDCTGDist(xmlNode * node ) {
   }
   if (path_or_parName.empty()) {
     opp_error("-E- %s invalid xml format - no Dist define "
-              "(App: %s Role: %s DistType: %s Locality: %s)\n", 
+              "(App: %s Role: %s DistType: %s Locality: %s)\n",
               curXmlPath.c_str());
   }
   //create new DCTGDist.
   DCTGDist * p_DCTGDist = new DCTGDist;
   allDCTGDists.push_back(p_DCTGDist); //for delete manner
-  if (fromFile)
-    p_DCTGDist->setCdfTable(path_or_parName);
-  else
+  if (fromFile) {
+    // try to find the xml file if full path name is not provided
+    if (path_or_parName[0] != '/') {
+      path_or_parName = getDirName(curXmlPath) + string("/") + path_or_parName;
+    }
+    cout << "EZ: using scale: " << scale << " for " << path_or_parName << endl;
+    p_DCTGDist->setCdfTable(path_or_parName, scale);
+  } else {
     p_DCTGDist->setCallerRandParam(path_or_parName);
+  }
   return p_DCTGDist;
 }
 
@@ -644,7 +697,7 @@ int  DCTGMgr::strToInteger(string intStr,string appInstName) {
   return i;
 }
 
-DistType  strToDistType(string distTypeStr) {
+static DistType  strToDistType(string distTypeStr) {
   if (distTypeStr=="MSG_SIZE")      return MSG_SIZE ;
   if (distTypeStr=="INTER_ARRIVAL") return  INTER_ARRIVAL;
   if (distTypeStr=="FLOW_DURATION") return FLOW_DURATION;
@@ -653,7 +706,7 @@ DistType  strToDistType(string distTypeStr) {
   return NO_DIST_TYPE_SPECIFIED;
 }
 
-Locality  strToLocality(string localityStr) {
+static Locality  strToLocality(string localityStr) {
   if (localityStr=="INTRA_HOST")        return INTRA_HOST ;
   if (localityStr=="INTRA_RACK")        return INTRA_RACK;
   if (localityStr=="INTRA_CLUSTER")     return INTRA_CLUSTER;
@@ -662,4 +715,27 @@ Locality  strToLocality(string localityStr) {
   if (localityStr=="ALL")               return ALL;
   if (localityStr=="NONE")              return NONE;
   return NO_LOCALITY_SPECIFIED;
+}
+
+static string localityToStr(Locality locality)
+{
+  switch (locality) {
+  case INTRA_HOST:
+    return(string("INTRA_HOST"));
+  case INTRA_RACK:
+    return(string("INTRA_RACK"));
+  case INTRA_CLUSTER:
+    return(string("INTRA_CLUSTER"));
+  case INTRA_DATA_CENTER:
+    return(string("INTRA_DC"));
+  case INTER_DATA_CENTER:
+    return(string("INTER_DC"));
+  case ALL:
+    return(string("ALL"));
+  case NONE:
+    return(string("NONE"));
+  case NO_LOCALITY_SPECIFIED:
+    return(string("NO_LOCALITY_SPECIFIED"));
+  }
+  return string("BUG: unknown locality");
 }

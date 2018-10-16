@@ -53,7 +53,7 @@ class DCTrafficGen : public cSimpleModule
   double statCollPeriod_s; // statistics collection period
   double startColl_s;      // start of outBwMBps collection
   double endColl_s;        // end of outBwMBps collection
-  unsigned int numPending; // pending msgs - 1 means sched Q will drain
+  unsigned numPostedMessages; // number of messages posted (before they are marked done).
   string dstAddr;
 
   //traffic configurations
@@ -65,7 +65,7 @@ class DCTrafficGen : public cSimpleModule
   unsigned int flowSize_B;
   double flowDuration_s;
   double interArival_s;
-  int numMsgsInFlow;
+  unsigned int numMsgsInFlow;
   double avgTimeBetweenMsgs;
   simtime_t lastNegDelay;
   double flowRate;
@@ -92,11 +92,16 @@ class DCTrafficGen : public cSimpleModule
  protected:
   // must be provided by sub-class since convering address to destination is undefined
   virtual cMessage * createMsg(unsigned int pktSize_B,
-                               unsigned int msgPackets,string dstAddr) = 0;
-  // must be provided by sub-class since addressing is usage specific
-  virtual string getMyAddr() = 0;
+                               unsigned int msgPackets,string dstAddr) {
+    opp_error("should have been sub-classed and overriden");
+    return NULL;
+  };
 
+  // must be provided by sub-class since addressing is usage specific
+  virtual string getMyAddr() {opp_error("should have been sub-classed and overriden"); return("");};
+  // optioally provide a function that will emit the dstAddr event after encoding the address as double/int
   virtual void emit_dstAddr(string dstAddr) {};
+
   virtual void initialize();
   virtual void handleMessage(cMessage *msg);
   virtual void finish();
