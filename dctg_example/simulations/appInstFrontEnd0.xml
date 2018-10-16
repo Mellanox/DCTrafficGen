@@ -1,0 +1,68 @@
+<AppInst Name="FBFrontEnd">
+  <AppType>../../traffic/FBFrontEnd/appTypeFrontEnd.xml</AppType>
+  <Gen> <Role>web</Role> <Addr>0</Addr>  <Host>0</Host>  <Rack>0</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>1</Addr>  <Host>1</Host>  <Rack>0</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>2</Addr>  <Host>2</Host>  <Rack>0</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>3</Addr>  <Host>3</Host>  <Rack>0</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>4</Addr>  <Host>4</Host>  <Rack>1</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>5</Addr>  <Host>5</Host>  <Rack>1</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>6</Addr>  <Host>6</Host>  <Rack>1</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>7</Addr>  <Host>7</Host>  <Rack>1</Rack> <Cluster>0</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>8</Addr>  <Host>8</Host>  <Rack>2</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>9</Addr>  <Host>9</Host>  <Rack>2</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>10</Addr> <Host>10</Host> <Rack>2</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>11</Addr> <Host>11</Host> <Rack>2</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>12</Addr> <Host>12</Host> <Rack>3</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>13</Addr> <Host>13</Host> <Rack>3</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>14</Addr> <Host>14</Host> <Rack>3</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>web</Role> <Addr>15</Addr> <Host>15</Host> <Rack>3</Rack> <Cluster>1</Cluster> <DC>0</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>16</Addr> <Host>16</Host> <Rack>4</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>17</Addr> <Host>17</Host> <Rack>4</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>18</Addr> <Host>18</Host> <Rack>4</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>19</Addr> <Host>19</Host> <Rack>4</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>20</Addr> <Host>20</Host> <Rack>5</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>21</Addr> <Host>21</Host> <Rack>5</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>22</Addr> <Host>22</Host> <Rack>5</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>23</Addr> <Host>23</Host> <Rack>5</Rack> <Cluster>2</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>24</Addr> <Host>24</Host> <Rack>6</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>25</Addr> <Host>25</Host> <Rack>6</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>26</Addr> <Host>26</Host> <Rack>6</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>27</Addr> <Host>27</Host> <Rack>6</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>28</Addr> <Host>28</Host> <Rack>7</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>29</Addr> <Host>29</Host> <Rack>7</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>30</Addr> <Host>30</Host> <Rack>7</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+  <Gen> <Role>cache</Role> <Addr>31</Addr> <Host>31</Host> <Rack>7</Rack> <Cluster>3</Cluster> <DC>1</DC> </Gen>
+</AppInst>
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
