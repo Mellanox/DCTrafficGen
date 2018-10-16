@@ -14,7 +14,7 @@ ifneq ($(GCC_INSTALL),)
 endif
 
 ifeq (${MODE},debug)
-DEF=-DDEBUG
+DEF=-DDEBUG -ggdb -O0
 #LIBSUFF=debug
 else
 DEF=
