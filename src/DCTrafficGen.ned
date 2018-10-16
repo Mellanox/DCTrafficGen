@@ -36,20 +36,27 @@
 
 package DCTrafficGen;
 
-moduleinterface IDCTrafficGen
+simple DCTrafficGen
 {
     parameters:
       // the time to start generating work
       double startTime @unit(s) = default(0s);
-      // the time to stop generating work 
+      // the time to stop generating work
       double stopTime @unit(s) = default(10000s);
-   
-		// link BW
-      int linkBW_Bps @unit(B) = default(12.5GB); // for 100Gbps
-      // Message size to generate
-      volatile int pktSize @unit(B) = default(1500);
 
-      //app configuration to DCTrafficGen
+      // since the generator generates next message in a flow when "done"
+      // message is received, it may be required that at the flow beggining
+      // we post multiple messages for example to enable sending them in burst
+      // the parameter define how many messages to post immediatly at the
+      // beggining of a flow
+      int numPostedMessages = default(1);
+
+      // link BW
+      int linkBW_Bps @unit(B) = default(12.5GiB); // for 100Gbps
+      // Message size to generate
+      volatile int pktSize @unit(B) = default(1500B);
+
+      // app configuration to DCTrafficGen
       string appXmlConfig;
 
       // statistics
@@ -60,14 +67,14 @@ moduleinterface IDCTrafficGen
       double startColl @unit(s) = default(0s);
       // end statistics collection
       double endColl @unit(s) = default(10000s);
-		// signal based
-      @statistic[genBWVecMBps](record=max,min,mean,vector); 
-      @statistic[numMsgs](record=mean,vector); 
-      @statistic[flowDuration](record=mean,vector); 
-      @statistic[interArival](record=mean,vector); 
-      @statistic[msgSize](record=mean,vector); 
-      @statistic[flowRate](record=max,min,mean,vector); 
+      // signal based
+      @statistic[genBWVecMBps](record=max,min,mean,vector);
+      @statistic[numMsgs](record=mean,vector);
+      @statistic[flowDuration](record=mean,vector);
+      @statistic[interArival](record=mean,vector);
+      @statistic[msgSize](record=mean,vector);
+      @statistic[flowRate](record=max,min,mean,vector);
 
-	gates:
+   gates:
       inout out; // send msgs and receive "done" when msg sent
 }
