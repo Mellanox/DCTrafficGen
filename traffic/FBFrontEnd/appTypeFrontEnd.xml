@@ -1,0 +1,127 @@
+<AppType Name="FrontEnd">
+  <Role Name="cache">
+    <LocalityDist>
+      <FeedType>file</FeedType>
+      <Dist>localityDist_Facebook_Cache.csv</Dist>
+    </LocalityDist>
+    <DistType Name="MSG_SIZE">
+      <Locality Name="ALL">
+        <FeedType>file</FeedType>
+        <Dist>msgSizeDist_Facebook_Cache_intra_cluster.csv</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="INTER_ARRIVAL">
+      <Locality Name="ALL">
+        <FeedType>param</FeedType>
+        <Dist>cache_interArrival</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="FLOW_SIZE">
+      <Locality Name="INTRA_RACK">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Cache_intra_rack.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_CLUSTER">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Cache_intra_cluster.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Cache_intra_DC.csv</Dist>
+      </Locality>
+      <Locality Name="INTER_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Cache_inter_DC.csv</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="FLOW_DURATION">
+      <Locality Name="INTRA_RACK">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Cache_intra_rack.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_CLUSTER">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Cache_intra_cluster.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Cache_intra_DC.csv</Dist>
+      </Locality>
+      <Locality Name="INTER_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Cache_inter_DC.csv</Dist>
+      </Locality>
+    </DistType>
+  </Role>
+  <Role Name="web">
+    <LocalityDist>
+      <FeedType>file</FeedType>
+      <Dist>localityDist_Facebook_Web.csv</Dist>
+    </LocalityDist>
+    <DistType Name="MSG_SIZE">
+      <Locality Name="ALL">
+        <FeedType>file</FeedType>
+        <Dist>msgSizeDist_Facebook_Web_intra_cluster.csv</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="INTER_ARRIVAL">
+      <Locality Name="ALL">
+        <FeedType>param</FeedType>
+        <Dist>web_interArrival</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="FLOW_SIZE">
+      <Locality Name="INTRA_RACK">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Web_intra_rack.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_CLUSTER">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Web_intra_cluster.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Web_intra_DC.csv</Dist>
+      </Locality>
+      <Locality Name="INTER_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>KiB</Unit>
+        <Dist>flowSize_Facebook_Web_inter_DC.csv</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="FLOW_DURATION">
+      <Locality Name="INTRA_RACK">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Web_intra_rack.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_CLUSTER">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Web_intra_cluster.csv</Dist>
+      </Locality>
+      <Locality Name="INTRA_DATA_CENTER">
+        <FeedType>file</FeedType>
+		  <Unit>msec</Unit>
+        <Dist>flowDurationDist_Facebook_Web_intra_DC.csv</Dist>
+      </Locality>
+      <Locality Name="INTER_DATA_CENTER">
+		  <Unit>msec</Unit>
+        <FeedType>file</FeedType>
+        <Dist>flowDurationDist_Facebook_Web_inter_DC.csv</Dist>
+      </Locality>
+    </DistType>
+  </Role>
+</AppType>
+

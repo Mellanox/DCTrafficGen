@@ -1,0 +1,24 @@
+This traffic is FaceBook description of their Front End clusters [1].
+We model only the Web servers and Cache servers. 
+
+Due to the locality distribution the user should instantiate at lease 2 data 
+centers with at least 2 cluster each and at least 2 racks each cluster and at
+least 2 hosts per rack.
+
+We have defined 2 Roles: Cache and Web.
+
+The application model contain for each Role the following distributions:
+* locality 
+* msg size distibution, Should have been per locality but the paper does
+  not provide it. We use the intra cluster provided by the paper for all.
+* flow duration - different one per locality type
+* flow size - different one per locality type
+
+The application model contain parameters:
+* cache_interArrival 
+* web_interArrival
+
+[1] A. Roy, H. Zeng, J. Bagga, G. Porter, and A. C. Snoeren, 
+    "Inside the Social Network's (Datacenter) Network," 
+    in Proceedings of the 2015 ACM Conference on Special Interest 
+	 Group on Data Communication, New York, NY, USA, 2015, pp. 123-137.

@@ -1,0 +1,45 @@
+<AppType Name="Hadoop">
+  <Role Name="hadoop">
+    <LocalityDist>
+      <FeedType>file</FeedType>
+      <Dist>localityDist_Facebook_Hadoop.csv</Dist>
+    </LocalityDist>
+    <DistType Name="MSG_SIZE">
+      <Locality Name="ALL">
+        <FeedType>file</FeedType>
+        <Dist>msgSizeDist_AllLoc_Facebook_Hadoop.csv</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="INTER_ARRIVAL">
+      <Locality Name="ALL">
+        <FeedType>param</FeedType>
+        <Dist>interArrival</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="FLOW_SIZE">
+      <Locality Name="ALL">
+        <FeedType>param</FeedType>
+        <Dist>flowSize</Dist>
+      </Locality>
+    </DistType>
+    <DistType Name="FLOW_DURATION">
+      <Locality Name="INTRA_RACK">
+        <FeedType>param</FeedType>
+        <Dist>flowDuration_IntraRack</Dist>
+      </Locality>
+      <Locality Name="INTRA_CLUSTER">
+        <FeedType>param</FeedType>
+        <Dist>flowDuration_all</Dist>
+      </Locality>
+      <Locality Name="INTRA_DATA_CENTER">
+        <FeedType>param</FeedType>
+        <Dist>flowDuration_all</Dist>
+      </Locality>
+      <Locality Name="INTER_DATA_CENTER">
+        <FeedType>param</FeedType>
+        <Dist>flowDuration_all</Dist>
+      </Locality>
+    </DistType>
+  </Role>
+</AppType>
+
