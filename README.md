@@ -108,9 +108,9 @@ NOTE: In order to avoid too fast generation the TG will generate a new
 - run: make makefiles; make; make MODE=release
 - cd simulations
 - To simulate FBHadoop:
-  ../out/gcc-debug/src/dctg_example -u Cmdenv -f omnetpp.ini -c Hadoop
+  ../out/gcc-debug/src/dctg_example -u Cmdenv -f omnetpp.ini -n ../src:../../src/ -c Hadoop
 - To simulate FBFrontEnd:
-  ../out/gcc-debug/src/dctg_example -u Cmdenv -f omnetpp.ini -c FrontEnd
+  ../out/gcc-debug/src/dctg_example -u Cmdenv -f omnetpp.ini -n ../src:../../src/ -c FrontEnd
 
 Enjoy :)
 
